@@ -1,4 +1,4 @@
-# General packages (from PyPI)
+# General packages
 fastapi
 uvicorn
 jinja2
@@ -7,5 +7,5 @@ requests
 beautifulsoup4
 transformers
 
-# CPU-only PyTorch from official PyTorch index
-torch==2.8.0+cpu --index-url https://download.pytorch.org/whl/cpu
+# CPU PyTorch (no +cpu)
+torch==2.8.0
