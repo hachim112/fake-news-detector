@@ -8,6 +8,14 @@ import requests
 from bs4 import BeautifulSoup
 import urllib.parse
 
+
+
+if __name__ == "__main__":
+    # Use the port Render gives you (default 8000 if running locally)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("app:app", host="0.0.0.0", port=port, reload=True)
+
+
 # -------------------
 # FASTAPI SETUP
 # -------------------
