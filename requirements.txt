@@ -5,5 +5,4 @@ torch
 jinja2
 pydantic
 requests
-python-multipart
-googlesearch-python
+beautifulsoup4

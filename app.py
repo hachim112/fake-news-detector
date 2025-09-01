@@ -4,32 +4,72 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from transformers import pipeline
+import requests
+from bs4 import BeautifulSoup
+import urllib.parse
 
-# FastAPI setup
+# -------------------
+# FASTAPI SETUP
+# -------------------
 app = FastAPI(title="Fake News Detector")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-# Input model
+# -------------------
+# INPUT MODEL
+# -------------------
 class NewsItem(BaseModel):
     text: str
 
-# Load a small text classification model locally
+# -------------------
+# LOAD MODEL LOCALLY
+# -------------------
 classifier = pipeline("text-classification", model="distilbert-base-uncased-finetuned-sst-2-english")
 
-# Label mapping
+# -------------------
+# LABEL MAPPING
+# -------------------
 LABEL_MAP = {
     "POSITIVE": "REAL",
     "NEGATIVE": "FAKE"
 }
 
-# Routes
+# -------------------
+# HELPER: GET SOURCES WITHOUT TOKEN
+# -------------------
+def get_sources(query, max_results=3):
+    """Return top URLs from DuckDuckGo search (no API token)."""
+    try:
+        query_encoded = urllib.parse.quote(query)
+        search_url = f"https://duckduckgo.com/html/?q={query_encoded}"
+        headers = {"User-Agent": "Mozilla/5.0"}
+        resp = requests.get(search_url, headers=headers)
+        soup = BeautifulSoup(resp.text, "html.parser")
+        links = []
+
+        for a in soup.find_all("a", class_="result__a", href=True):
+            url = a['href']
+            if "uddg=" in url:
+                url = urllib.parse.unquote(url.split("uddg=")[-1])
+            links.append(url)
+            if len(links) >= max_results:
+                break
+
+        return links if links else ["No sources found"]
+    except Exception as e:
+        return [f"Error fetching URLs: {str(e)}"]
+
+# -------------------
+# ROUTES
+# -------------------
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
+    """Render homepage."""
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.post("/detect")
 async def detect(item: NewsItem):
+    """Detect if text is FAKE or REAL with dynamic URLs."""
     try:
         # Make prediction
         result = classifier(item.text)
@@ -42,8 +82,9 @@ async def detect(item: NewsItem):
             + ("⚠️ Likely fake news." if label == "FAKE" else "✅ Resembles trustworthy news.")
         )
 
-        # Manual top sources (for now)
-        sources = ["https://www.bbc.com", "https://www.cnn.com", "https://www.reuters.com"]
+        # Dynamic sources based on prediction
+        query_type = "fake news" if label == "FAKE" else "news"
+        sources = get_sources(f"{query_type} {item.text}")
 
         return {
             "label": label,
