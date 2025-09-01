@@ -7,7 +7,7 @@ from transformers import pipeline
 import requests
 from bs4 import BeautifulSoup
 import urllib.parse
-
+import uvicorn
 
 
 if __name__ == "__main__":
