@@ -4,77 +4,13 @@
     <meta charset="UTF-8">
     <title>Fake News Detector</title>
     <link rel="stylesheet" href="/static/style.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 30px;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-        }
-        textarea {
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            resize: vertical;
-        }
-        button {
-            margin-top: 10px;
-            padding: 10px 20px;
-            font-size: 16px;
-            background: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        button:hover {
-            background: #0056b3;
-        }
-        #result {
-            margin-top: 20px;
-        }
-        .card {
-            background: #f9fafb;
-            border-left: 6px solid #007BFF;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-        .card.fake {
-            border-left-color: #dc3545;
-        }
-        .sources a {
-            display: block;
-            color: #007BFF;
-            text-decoration: none;
-            margin: 3px 0;
-        }
-        .sources a:hover {
-            text-decoration: underline;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
-        <h2>📰 Fake News Detector</h2>
+        <h2>Fake News Detector</h2>
 
         <form id="newsForm">
-            <textarea id="newsText" placeholder="Paste news here..." rows="6"></textarea><br>
+            <textarea id="newsText" placeholder="Paste news here..." rows="6"></textarea>
             <button type="submit">Check</button>
         </form>
 
@@ -87,7 +23,7 @@
             let text = document.getElementById("newsText").value;
 
             if (!text.trim()) {
-                document.getElementById("result").innerHTML = "<p style='color:red;'>⚠️ Please enter text first.</p>";
+                document.getElementById("result").innerHTML = "<p class='error-message'>Please enter text first.</p>";
                 return;
             }
 
@@ -100,9 +36,9 @@
             let data = await res.json();
 
             if (data.error) {
-                document.getElementById("result").innerHTML = `<p style='color:red;'>Error: ${data.error}</p>`;
+                document.getElementById("result").innerHTML = `<p class='error-message'>Error: ${data.error}</p>`;
             } else {
-                let cardClass = data.label === "FAKE" ? "card fake" : "card";
+                let cardClass = data.label === "FAKE" ? "result-card fake" : "result-card";
                 let sourcesHtml = "";
                 if (data.sources && data.sources.length > 0) {
                     sourcesHtml = "<div class='sources'><strong>Sources:</strong>";
