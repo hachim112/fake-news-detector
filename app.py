@@ -8,7 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 import urllib.parse
 import uvicorn
-
+import os
 
 if __name__ == "__main__":
     # Use the port Render gives you (default 8000 if running locally)
