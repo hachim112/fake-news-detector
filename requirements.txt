@@ -1,8 +1,8 @@
-fastapi
-uvicorn
-transformers
-torch
-jinja2
-pydantic
-requests
-beautifulsoup4
+fastapi==0.116.1
+uvicorn==0.22.0
+jinja2==3.1.6
+pydantic==2.11.7
+requests==2.32.5
+beautifulsoup4==4.12.2
+transformers==4.31.0
+torch==2.1.0+cpu

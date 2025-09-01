@@ -7,14 +7,8 @@ from transformers import pipeline
 import requests
 from bs4 import BeautifulSoup
 import urllib.parse
-import uvicorn
 import os
-
-if __name__ == "__main__":
-    # Use the port Render gives you (default 8000 if running locally)
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("app:app", host="0.0.0.0", port=port, reload=True)
-
+import uvicorn
 
 # -------------------
 # FASTAPI SETUP
@@ -30,9 +24,13 @@ class NewsItem(BaseModel):
     text: str
 
 # -------------------
-# LOAD MODEL LOCALLY
+# LOAD MODEL (CPU)
 # -------------------
-classifier = pipeline("text-classification", model="distilbert-base-uncased-finetuned-sst-2-english")
+classifier = pipeline(
+    "text-classification",
+    model="distilbert-base-uncased-finetuned-sst-2-english",
+    device=-1  # CPU only
+)
 
 # -------------------
 # LABEL MAPPING
@@ -51,7 +49,7 @@ def get_sources(query, max_results=3):
         query_encoded = urllib.parse.quote(query)
         search_url = f"https://duckduckgo.com/html/?q={query_encoded}"
         headers = {"User-Agent": "Mozilla/5.0"}
-        resp = requests.get(search_url, headers=headers)
+        resp = requests.get(search_url, headers=headers, timeout=5)
         soup = BeautifulSoup(resp.text, "html.parser")
         links = []
 
@@ -103,3 +101,10 @@ async def detect(item: NewsItem):
 
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
+# -------------------
+# RUN APP (PORT FROM RENDER)
+# -------------------
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("app:app", host="0.0.0.0", port=port)
