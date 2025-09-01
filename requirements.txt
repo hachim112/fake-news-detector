@@ -1,7 +1,7 @@
 fastapi
 uvicorn
 transformers
-torch
+torch==2.0.1
 jinja2
 pydantic
 requests
